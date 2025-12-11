@@ -28,6 +28,12 @@ impl StatusMessage {
     pub fn get_status(&self, account_id: String) -> Option<String> {
         return self.records.get(&account_id);
     }
+    
+    // New feature: delete status message
+    pub fn delete_status(&mut self) {
+        let account_id = env::signer_account_id();
+        self.records.remove(&account_id);
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -76,5 +82,22 @@ mod tests {
         testing_env!(context);
         let contract = StatusMessage::default();
         assert_eq!(None, contract.get_status("francis.near".to_string()));
+    }
+
+    // New test for delete functionality
+    #[test]
+    fn delete_message() {
+        let context = get_context(vec![], false);
+        testing_env!(context);
+        let mut contract = StatusMessage::default();
+        contract.set_status("hello".to_string());
+        assert_eq!(
+            "hello".to_string(),
+            contract.get_status("bob_near".to_string()).unwrap()
+        );
+        
+        // Delete the status
+        contract.delete_status();
+        assert_eq!(None, contract.get_status("bob_near".to_string()));
     }
 }

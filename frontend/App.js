@@ -44,6 +44,23 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
     message.focus();
   };
 
+  // New function to delete status
+  const onDelete = async event => {
+    event.preventDefault();
+
+    const { fieldset } = event.target.form.elements;
+    fieldset.disabled = true;
+
+    await contract.delete_status(
+      {},
+      BOATLOAD_OF_GAS
+    );
+
+    setStatus(null);
+
+    fieldset.disabled = false;
+  };
+
   const signIn = () => {
     wallet.requestSignIn(
       nearConfig.contractName,
@@ -88,6 +105,7 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
               {status}
             </code>
           </p>
+          <button onClick={onDelete}>Delete status</button>
         </>
       :
         <p>No status message yet!</p>
@@ -99,7 +117,8 @@ const App = ({ contract, currentUser, nearConfig, wallet }) => {
 App.propTypes = {
   contract: PropTypes.shape({
     set_status: PropTypes.func.isRequired,
-    get_status: PropTypes.func.isRequired
+    get_status: PropTypes.func.isRequired,
+    delete_status: PropTypes.func.isRequired
   }).isRequired,
   currentUser: PropTypes.shape({
     accountId: PropTypes.string.isRequired,
